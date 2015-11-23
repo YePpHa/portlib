@@ -1,0 +1,14 @@
+{
+  "name": "portlib",
+  "version": "1.0.0",
+  "description": "Port Library is a JavaScript library that can create a synchronous connection between two sandboxes as long as the two sandboxes have access to the same event pool.",
+  "scripts": {
+    "generate-docs": "node_modules/.bin/jsdoc --configure jsdoc.json --verbose"
+  },
+  "author": "Jeppe Rune Mortensen <jepperm@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jsdoc": "^3.4.0",
+    "minami": "^1.1.1"
+  }
+}

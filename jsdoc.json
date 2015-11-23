@@ -1,0 +1,15 @@
+{
+  "source": {
+    "include": [ "./src/", "package.json", "README.md" ],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules/|docs)"
+  },
+  "opts": {
+    "destination": "./docs/",
+    "recurse": true,
+    "template": "node_modules/minami"
+  },
+  "tags": {
+    "dictionaries": ["closure", "jsdoc"]
+  }
+}
