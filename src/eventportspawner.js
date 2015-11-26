@@ -2,18 +2,27 @@ goog.provide("pl.EventPortSpawner");
 goog.provide("pl.EventPortSpawner.EventType");
 
 goog.require("goog.events.EventHandler");
+goog.require("goog.events.EventTarget");
+
+goog.require("goog.json");
+
+goog.require("pl.Port");
+goog.require("pl.EventPort");
 
 /**
  * The port spawner. It accpets connection requests and spawns a new port for that specific connection.
  * @constructor
+ * @extends {goog.events.EventTarget}
  */
 pl.EventPortSpawner = function(channel, name) {
+  goog.base(this);
   this.channel_ = channel;
   this.name_ = name;
 
   this.getHandler()
     .listen(document.documentElement, this.getChannel(), this.channelHandler_, false);
 };
+goog.inherits(pl.EventPortSpawner, goog.events.EventTarget);
 
 /**
  * @enum {!string}
@@ -27,6 +36,16 @@ pl.EventPortSpawner.EventType = {
  * @private {goog.events.EventHandler}
  */
 pl.EventPortSpawner.prototype.handler_;
+
+/**
+ * @private {string}
+ */
+pl.EventPortSpawner.prototype.channel_;
+
+/**
+ * @private {string}
+ */
+pl.EventPortSpawner.prototype.name_;
 
 /**
  * @override
@@ -60,6 +79,14 @@ pl.EventPortSpawner.prototype.getHandler = function() {
  */
 pl.EventPortSpawner.prototype.getChannel = function() {
   return this.channel_;
+};
+
+/**
+ * Returns the name.
+ * @return {string} The name.
+ */
+pl.EventPortSpawner.prototype.getName = function() {
+  return this.name_;
 };
 
 /**

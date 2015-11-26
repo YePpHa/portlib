@@ -1,0 +1,19 @@
+{
+  "name": "portlib",
+  "version": "1.0.0",
+  "authors": [
+    "Jeppe Rune Mortensen <jepperm@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "closure-compiler": "http://dl.google.com/closure-compiler/compiler-latest.zip",
+    "closure-library": "https://github.com/google/closure-library/archive/master.zip"
+  }
+}

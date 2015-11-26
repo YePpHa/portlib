@@ -1,5 +1,6 @@
 goog.provide("pl.Port");
 goog.provide("pl.Port.EventType");
+goog.provide("pl.Port.MethodType");
 
 goog.require("goog.Promise");
 
@@ -17,12 +18,14 @@ goog.require("goog.json");
  * @extends {goog.events.EventTarget}
  */
 pl.Port = function(methods) {
-  goog.base(this, 'constructor');
+  goog.events.EventTarget.call(this);
 
   this.uidCounter_ = 0;
   this.id_ = goog.UID_PROPERTY_ + "_" + goog.getUid(this);
 
   this.methods = methods || {};
+  this.methodResults_ = {};
+  this.methodPromises_ = {};
 };
 goog.inherits(pl.Port, goog.events.EventTarget);
 
@@ -165,12 +168,14 @@ pl.Port.prototype.disconnect = function() {
  */
 pl.Port.prototype.connect = function(name) {
   var detail = {};
-  detail['type'] == pl.Port.MethodType.REQUEST_CONNECTION;
+  detail['type'] = pl.Port.MethodType.REQUEST_CONNECTION;
   detail['sender'] = this.getId();
   detail['receiver'] = "*";
   detail['data'] = name;
 
   this.postMessage_(detail);
+
+  return !!this.getReceiverId();
 };
 
 /**
@@ -189,16 +194,16 @@ pl.Port.prototype.callMethod = function(method, var_args) {
   };
 
   // Ready the object.
-  pl.Port.prototype.methodResults_[callId] = null;
+  this.methodResults_[callId] = null;
 
   // Send the message to the external port.
   this.postMessage(pl.Port.MethodType.METHOD_CALL, data);
 
   // Retrieve the result of the event.
-  var result = pl.Port.prototype.methodResults_[callId];
+  var result = this.methodResults_[callId];
 
   // Clean the temporary reference.
-  delete pl.Port.prototype.methodResults_[callId];
+  delete this.methodResults_[callId];
 
   return result;
 };
@@ -215,7 +220,7 @@ pl.Port.prototype.handleMessage = function(detail) {
   } else if (detail['type'] === pl.Port.MethodType.REQUEST_CONNECTION) {
     this.handleRequestConnection(detail);
   } else if (detail['type'] === pl.Port.MethodType.METHOD_CALL) {
-    this.handleMethodCall(detail['receiver'], detail['data']);
+    this.handleMethodCall(detail['sender'], detail['data']);
   } else if (detail['type'] === pl.Port.MethodType.METHOD_RETURN) {
     this.handleMethodReturn(detail['data']);
   } else if (detail['type'] === pl.Port.MethodType.PROMISE_RESOLVE) {

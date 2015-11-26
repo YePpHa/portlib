@@ -16,8 +16,8 @@ goog.require("pl.support.State");
  * @extends {pl.Port}
  */
 pl.EventPort = function(channel, methods) {
-  if (pl.EventPort.support.CustomEvent === pl.support.State.NONE) throw new Error("CustomEvent not supported.");
-  goog.base(this, 'constructor', methods);
+  if (pl.support.CustomEvent === pl.support.State.NONE) throw new Error("CustomEvent not supported.");
+  pl.Port.call(this, methods);
 
   this.channel_ = channel;
 
@@ -29,12 +29,13 @@ goog.inherits(pl.EventPort, pl.Port);
 /**
  * Returns the connected port.
  * @param {string} channel The channel to communicate through.
+ * @param {string} name The name of the external port.
  * @param {Object=} methods The methods the external ports can call.
  * @return {pl.EventPort} The connected port.
  */
-pl.EventPort.connect = function(channel, methods) {
+pl.EventPort.connect = function(channel, name, methods) {
   var port = new pl.EventPort(channel, methods);
-  if (port.connect()) {
+  if (port.connect(name)) {
     return port;
   }
   port.dispose();
@@ -60,9 +61,9 @@ pl.EventPort.prototype.disposeInternal = function() {
  */
 pl.EventPort.prototype.postMessage_ = function(detail) {
   var evt;
-  if (pl.EventPort.support.CustomEvent === pl.support.State.FULL) {
+  if (pl.support.CustomEvent === pl.support.State.FULL) {
     evt = new CustomEvent(this.getChannel(), { 'detail': goog.json.serialize(detail) });
-  } else if (pl.EventPort.support.CustomEvent === pl.support.State.PARTIAL) {
+  } else if (pl.support.CustomEvent === pl.support.State.PARTIAL) {
     evt = document.createEvent("CustomEvent");
     evt.initCustomEvent(this.getChannel(), true, true, goog.json.serialize(detail));
   }

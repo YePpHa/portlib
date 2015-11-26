@@ -8,6 +8,8 @@
   "author": "Jeppe Rune Mortensen <jepperm@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "closure-js": "git+http://git.runerne.dk/Jinpha/closure-js.git",
+    "gulp": "^3.9.0",
     "jsdoc": "^3.4.0",
     "minami": "^1.1.1"
   }
