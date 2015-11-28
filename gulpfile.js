@@ -1,33 +1,92 @@
 var gulp = require('gulp');
+var gulpFile = require('gulp-file');
+var through = require('through-gulp');
 var fs = require("fs");
-
 var ClosureCompiler = require("closure-js");
 
+var closureCompilerPath = "./bower_components/closure-compiler/compiler.jar";
 var testSrc = ["./src/**/*.js", "./test/**/*.js", "./bower_components/closure-library/closure/goog/**/*.js"];
 
-gulp.task("test", ["test-content", "test-page", "test-manifest"]);
+var closureTmp = {};
 
-gulp.task('test-content', function() {
+/**
+ * Replace the placeholder token.
+ */
+function replacePlaceholder(content) {
+  return content.replace(/\$\{([^{}]+)\}/g, function(m0, m1){
+    var tokens = m1.split(":");
+    if (tokens[0] === "closure") {
+      var entryPoint = tokens[1];
+      if (closureTmp[entryPoint]) return JSON.stringify(closureTmp[entryPoint]);
+
+      var cc = new ClosureCompiler(closureCompilerPath);
+      cc.compilationLevel = ClosureCompiler.CompilationLevels.SIMPLE_OPTIMIZATIONS,
+      cc.entryPoint = entryPoint;
+      cc.onlyClosureDependencies = true;
+      cc.files = testSrc;
+      cc.outputWrapper = "(function(){%output%})();";
+
+      return JSON.stringify((closureTmp[entryPoint] = cc.build().toString()));
+    }
+
+    return m0;
+  });
+  return content;
+}
+
+/** Userscript test extension */
+gulp.task("userscript-test", function(){
+  var meta = [];
+  meta.push("// ==UserScript==");
+  meta.push("// @name Port Library Example");
+  meta.push("// @namespace https://github.com/YePpHa/portlib");
+  meta.push("// @author Jeppe Rune Mortensen <jepperm@gmail.com>");
+  meta.push("// @match https://www.youtube.com/*");
+  meta.push("// @include https://www.youtube.com/*");
+  meta.push("// ==/UserScript==");
+
+  return gulp.src(testSrc)
+    .pipe(through.map(function(file) {
+      file.contents = new Buffer(replacePlaceholder(file.contents.toString()));
+      return file;
+    }))
+    .pipe(ClosureCompiler.stream("content.user.js", {
+      compilationLevel: ClosureCompiler.CompilationLevels.SIMPLE_OPTIMIZATIONS,
+      entryPoint: "pl.test.userscript.content",
+      onlyClosureDependencies: true,
+      outputWrapper: "(function(){%output%})();"
+    }, closureCompilerPath))
+    .pipe(through.map(function(file) {
+      file.contents = new Buffer(meta.join("\n") + "\n\n" + file.contents.toString());
+      return file;
+    }))
+    .pipe(gulp.dest("./dist/userscript"));
+});
+
+/** Chrome test extension */
+gulp.task("chrome-test", ["chrome-test-content", "chrome-test-page", "chrome-test-manifest"]);
+
+gulp.task('chrome-test-content', function() {
   return gulp.src(testSrc)
     .pipe(ClosureCompiler.stream("content.js", {
       compilationLevel: ClosureCompiler.CompilationLevels.SIMPLE_OPTIMIZATIONS,
-      entryPoint: "pl.test.content",
+      entryPoint: "pl.test.chrome.content",
       onlyClosureDependencies: true
-    }, "./bower_components/closure-compiler/compiler.jar"))
-    .pipe(gulp.dest("./dist"));
+    }, closureCompilerPath))
+    .pipe(gulp.dest("./dist/chrome"));
 });
 
-gulp.task('test-page', function() {
+gulp.task('chrome-test-page', function() {
   return gulp.src(testSrc)
     .pipe(ClosureCompiler.stream("page.js", {
       compilationLevel: ClosureCompiler.CompilationLevels.SIMPLE_OPTIMIZATIONS,
-      entryPoint: "pl.test.page",
+      entryPoint: "pl.test.chrome.page",
       onlyClosureDependencies: true
-    }, "./bower_components/closure-compiler/compiler.jar"))
-    .pipe(gulp.dest("./dist"));
+    }, closureCompilerPath))
+    .pipe(gulp.dest("./dist/chrome"));
 });
 
-gulp.task('test-manifest', function() {
+gulp.task('chrome-test-manifest', function() {
   var opt = {
     "manifest_version": 2,
     "name": "Port Library Test",
@@ -42,5 +101,7 @@ gulp.task('test-manifest', function() {
       "page.js"
     ]
   };
-  fs.writeFileSync("./dist/manifest.json", JSON.stringify(opt));
+
+  return gulpFile("manifest.json", JSON.stringify(opt))
+    .pipe(gulp.dest("./dist/chrome"));
 });

@@ -10,16 +10,23 @@ The library is dependent on
 
 ## Build
 Currently the build system of the library is only for building the test
-extension for Chrome to test if the synchronous and asynchronous methods work.
+userscript or extension for Chrome to test if the synchronous and asynchronous methods work.
 
 To build the test please make sure you have downloaded all the Dependencies by
 calling:
 ```
 $ npm install
 $ bower install
+$ npm install -g gulp
 ```
 If you don't know what npm is or what Bower is please see
 [Node](https://nodejs.org/en/) and [Bower](http://bower.io/).
+
+Thereafter, you can build either the Chrome extension or the userscript by:
+```
+$ gulp chrome-test
+$ gulp userscript-test
+```
 
 Please note that the build system uses
 [Google Closure Compiler](https://developers.google.com/closure/compiler/),
@@ -31,7 +38,7 @@ The only browser dependency is the support of the
 
 ## Tested in
 Currently tested in:
- * Chrome v46
+ * Chrome v46 (with Tampermonkey and a Chrome extension)
 
 ### Limitations
 Port Library makes it easy to create a pipeline to the page sandbox. However,
@@ -42,7 +49,8 @@ there are some limitations. The limitations are as follows:
    Date class will only be an object with the values of the Date instance when
    it has been serialized.
  * It's not possible to transfer functions as they can't be serialized. If your
-   function is asynchronous you need to return a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+   function is asynchronous you need to return a
+   [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
    instead.
 
 ## Examples

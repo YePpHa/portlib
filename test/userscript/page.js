@@ -1,4 +1,4 @@
-goog.provide("pl.test.page");
+goog.provide("pl.test.userscript.page");
 
 goog.require("pl.EventPortSpawner");
 
@@ -28,3 +28,6 @@ pl.test.page.listen(pl.EventPortSpawner.EventType.PORT_SPAWNED, function(e){
     });
   });
 });
+
+// Notify content.js that we're ready.
+window.postMessage("pl.test is ready", "*");

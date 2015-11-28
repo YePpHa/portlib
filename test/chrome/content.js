@@ -1,4 +1,4 @@
-goog.provide("pl.test.content");
+goog.provide("pl.test.chrome.content");
 
 goog.require("pl.EventPort");
 
@@ -13,9 +13,11 @@ var script = goog.dom.createDom(goog.dom.TagName.SCRIPT, {
   'type': 'text/javascript'
 });
 
-// We need to attach a load event to the script element to know when to connect the port.
+// Listening on the message event to know when page.js is ready.
 var handler = new goog.events.EventHandler();
-handler.listen(script, goog.events.EventType.LOAD, function(){
+handler.listen(window, goog.events.EventType.MESSAGE, function(e){
+  if (e.getBrowserEvent()['data'] !== "pl.test is ready") return;
+
   // Connecting the port.
   var port = pl.EventPort.connect("pl-channel", "pl-page-spawner");
 
