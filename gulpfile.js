@@ -31,7 +31,7 @@ gulp.task('test-manifest', function() {
   var opt = {
     "manifest_version": 2,
     "name": "Port Library Test",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "content_scripts": [
       {
         "matches": ["https://www.youtube.com/*"],

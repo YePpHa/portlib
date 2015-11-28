@@ -10,6 +10,8 @@ goog.require("goog.events.EventTarget");
 
 goog.require("goog.json");
 
+goog.require("pl.utils");
+
 /**
  * A port can have a one-on-one connection with another port. It's used to easily communicate with across sandboxes.
  * @constructor
@@ -272,7 +274,7 @@ pl.Port.prototype.handleMethodCall = function(receiverId, data) {
   res_data['async'] = false;
 
   // What to do if the result is a Promise.
-  if (res_data['result'] instanceof Promise || res_data['result'] instanceof goog.Promise) {
+  if (pl.utils.isPromise(res_data['result'])) {
     res_data['result']
     .then(goog.bind(function(result){
       var promise_data = {};
