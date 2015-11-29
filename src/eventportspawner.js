@@ -64,6 +64,7 @@ pl.EventPortSpawner.prototype.disposeInternal = function() {
 
 /**
  * Returns the event handler.
+ * @protected
  * @return {goog.events.EventHandler} The event handler.
  */
 pl.EventPortSpawner.prototype.getHandler = function() {
