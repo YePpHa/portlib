@@ -1,11 +1,13 @@
+var fs = require("fs");
+var path = require("path");
 var gulp = require('gulp');
 var gulpFile = require('gulp-file');
 var through = require('through-gulp');
-var fs = require("fs");
 var ClosureCompiler = require("closure-js");
 
 var closureCompilerPath = "./bower_components/closure-compiler/compiler.jar";
-var testSrc = ["./src/**/*.js", "./test/**/*.js", "./bower_components/closure-library/closure/goog/**/*.js"];
+var testSrc = ["./src/client/**/*.js", "./test/**/*.js", "./bower_components/closure-library/closure/goog/**/*.js"];
+var src = ["./src/client/**/*.js", "./bower_components/closure-library/closure/goog/**/*.js"];
 
 var closureTmp = {};
 
@@ -104,4 +106,28 @@ gulp.task('chrome-test-manifest', function() {
 
   return gulpFile("manifest.json", JSON.stringify(opt))
     .pipe(gulp.dest("./dist/chrome"));
+});
+
+/** Building exports */
+gulp.task('build-export', function(){
+  var argv = require('yargs')
+  .boolean('useNativePromise')
+  .argv;
+
+  return gulp.src(src)
+    .pipe(ClosureCompiler.stream("lib.js", {
+      compilationLevel: ClosureCompiler.CompilationLevels.ADVANCED_OPTIMIZATIONS,
+      entryPoint: "pl.exports",
+      onlyClosureDependencies: true,
+      defines: {
+        "pl.useNativePromise": argv.useNativePromise
+      }
+    }, closureCompilerPath))
+    .pipe(through.map(function(file) {
+      var contents = fs.readFileSync('./src/wrapper.js').toString()
+                    .replace("%output%", file.contents.toString())
+      file.contents = new Buffer(contents);
+      return file;
+    }))
+    .pipe(gulp.dest("./dist"));
 });

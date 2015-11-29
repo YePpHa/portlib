@@ -2,32 +2,34 @@ goog.provide("pl.Port");
 goog.provide("pl.Port.EventType");
 goog.provide("pl.Port.MethodType");
 
-goog.require("goog.Promise");
-
 goog.require("goog.events.Event");
 goog.require("goog.events.EventHandler");
 goog.require("goog.events.EventTarget");
 
 goog.require("goog.json");
 
+goog.require("pl.Promise");
 goog.require("pl.utils");
 
 /**
  * A port can have a one-on-one connection with another port. It's used to easily communicate with across sandboxes.
  * @constructor
  * @abstract
- * @param {Object=} methods The method external ports can call.
+ * @param {Object=} opt_methods The method external ports can call.
+ * @param {string=} opt_name
  * @extends {goog.events.EventTarget}
  */
-pl.Port = function(methods) {
+pl.Port = function(opt_methods, opt_name) {
   goog.events.EventTarget.call(this);
 
   this.uidCounter_ = 0;
   this.id_ = goog.UID_PROPERTY_ + "_" + goog.getUid(this);
 
-  this.methods = methods || {};
+  this.methods = opt_methods || {};
   this.methodResults_ = {};
   this.methodPromises_ = {};
+
+  this.name_ = opt_name;
 };
 goog.inherits(pl.Port, goog.events.EventTarget);
 
@@ -64,6 +66,12 @@ pl.Port.MethodType = {
  * @private {!string}
  */
 pl.Port.prototype.id_;
+
+/**
+ * The name of the port used to connect to.
+ * @private {!string}
+ */
+pl.Port.prototype.name_;
 
 /**
  * The ID of the receiver.
@@ -121,6 +129,7 @@ pl.Port.prototype.disposeInternal = function() {
 
 /**
  * Returns the event handler.
+ * @protected
  * @return {goog.events.EventHandler} The event handler.
  */
 pl.Port.prototype.getHandler = function() {
@@ -136,6 +145,14 @@ pl.Port.prototype.getHandler = function() {
  */
 pl.Port.prototype.getId = function() {
   return this.id_;
+};
+
+/**
+ * Returns the name.
+ * @return {!string} The name.
+ */
+pl.Port.prototype.getName = function() {
+  return this.name_;
 };
 
 /**
@@ -253,7 +270,7 @@ pl.Port.prototype.handleAcceptConnection = function(detail) {
  * @protected
  */
 pl.Port.prototype.handleRequestConnection = function(detail) {
-  if (!this.getReceiverId()) {
+  if (!this.getReceiverId() && detail['data'] === this.getName()) {
     this.setReceiverId(detail['sender']);
     this.postMessage(pl.Port.MethodType.ACCEPT_CONNECTION, null);
   }
@@ -304,9 +321,9 @@ pl.Port.prototype.handleMethodReturn = function(data) {
   var result = data['result'];
 
   if (data['async']) {
-    this.methodResults_[id] = new goog.Promise(function(resolve, reject){
+    this.methodResults_[id] = new pl.Promise(goog.bind(function(resolve, reject){
       this.methodPromises_[id] = [resolve, reject];
-    }, this);
+    }, this));
   } else {
     this.methodResults_[id] = result;
   }
@@ -388,6 +405,14 @@ pl.Port.prototype.setMethod = function(method, fn) {
  */
 pl.Port.prototype.getMethod = function(method) {
   return this.methods[method];
+};
+
+/**
+ * Returns the methods.
+ * @return {Object} The methods.
+ */
+pl.Port.prototype.getMethods = function() {
+  return this.methods;
 };
 
 /**

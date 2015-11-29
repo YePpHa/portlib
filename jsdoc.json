@@ -1,11 +1,16 @@
 {
   "source": {
-    "include": [ "./src/", "package.json", "README.md" ],
+    "include": [
+      "./src/client",
+      "package.json",
+      "README.md"
+    ],
     "includePattern": ".js$",
     "excludePattern": "(node_modules/|docs)"
   },
   "opts": {
     "destination": "./docs/",
+    "encoding": "utf8",
     "recurse": true,
     "template": "node_modules/minami"
   },

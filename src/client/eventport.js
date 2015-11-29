@@ -12,12 +12,13 @@ goog.require("pl.support.State");
  * The port using the CustomEvent API.
  * @constructor
  * @param {string} channel The channel to communicate through.
- * @param {Object=} methods The methods the external ports can call.
+ * @param {Object=} opt_methods The methods the external ports can call.
+ * @param {string=} opt_name
  * @extends {pl.Port}
  */
-pl.EventPort = function(channel, methods) {
+pl.EventPort = function(channel, opt_methods, opt_name) {
   if (pl.support.CustomEvent === pl.support.State.NONE) throw new Error("CustomEvent not supported.");
-  pl.Port.call(this, methods);
+  pl.Port.call(this, opt_methods, opt_name);
 
   this.channel_ = channel;
 

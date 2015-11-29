@@ -14,7 +14,7 @@ pl.test.page.listen(pl.EventPortSpawner.EventType.PORT_SPAWNED, function(e){
   port.setMethod("multiply", function(){
     var n = arguments[0];
     for (var i = 1; i < arguments.length; i++) {
-      n = n * arguments[i]
+      n = n * arguments[i];
     }
     return n;
   });

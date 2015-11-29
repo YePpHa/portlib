@@ -12,12 +12,16 @@ goog.require("pl.EventPort");
 /**
  * The port spawner. It accpets connection requests and spawns a new port for that specific connection.
  * @constructor
+ * @param {string} channel The channel.
+ * @param {string} name The name of the event port spawner that will be given to its spawned ports.
+ * @param {Object=} opt_methods The methods that will be callable.
  * @extends {goog.events.EventTarget}
  */
-pl.EventPortSpawner = function(channel, name) {
+pl.EventPortSpawner = function(channel, name, opt_methods) {
   goog.base(this);
   this.channel_ = channel;
   this.name_ = name;
+  this.methods_ = opt_methods;
 
   this.getHandler()
     .listen(document.documentElement, this.getChannel(), this.channelHandler_, false);
@@ -46,6 +50,11 @@ pl.EventPortSpawner.prototype.channel_;
  * @private {string}
  */
 pl.EventPortSpawner.prototype.name_;
+
+/**
+ * @private {Object}
+ */
+pl.EventPortSpawner.prototype.methods_;
 
 /**
  * @override
@@ -91,6 +100,36 @@ pl.EventPortSpawner.prototype.getName = function() {
 };
 
 /**
+ * Returns the methods.
+ * @param {string} name The method name.
+ * @return {function} The method.
+ */
+pl.EventPortSpawner.prototype.getMethod = function(name) {
+  return this.methods_[name];
+};
+
+/**
+ * Returns the methods.
+ * @return {Object=} The methods.
+ */
+pl.EventPortSpawner.prototype.getMethods = function() {
+  return this.methods_;
+};
+
+/**
+ * Remove the method.
+ * @param {string} method The method name to remove.
+ * @return {boolean} Whether the method was removed.
+ */
+pl.EventPortSpawner.prototype.removeMethod = function(method) {
+  if (method in this.methods) {
+    delete this.methods[method];
+    return true;
+  }
+  return false;
+};
+
+/**
  * Attempts to handle the channel event.
  * @param {goog.events.BrowserEvent} e The event.
  * @private
@@ -100,7 +139,7 @@ pl.EventPortSpawner.prototype.channelHandler_ = function(e) {
   var detail = goog.json.parse(browserEvent['detail']);
 
   if (detail['type'] === pl.Port.MethodType.REQUEST_CONNECTION && detail['data'] === this.getName()) {
-    var port = new pl.EventPort(this.getChannel());
+    var port = new pl.EventPort(this.getChannel(), this.getMethods(), this.getName());
     port.handleRequestConnection(detail);
 
     if (port.getReceiverId()) {

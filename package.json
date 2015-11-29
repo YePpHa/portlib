@@ -1,6 +1,6 @@
 {
   "name": "portlib",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Port Library is a JavaScript library that can create a synchronous connection between two sandboxes as long as the two sandboxes have access to the same event pool.",
   "scripts": {
     "generate-docs": "node_modules/.bin/jsdoc --configure jsdoc.json --verbose"
@@ -13,6 +13,7 @@
     "gulp-file": "^0.2.0",
     "jsdoc": "^3.4.0",
     "minami": "^1.1.1",
-    "through-gulp": "^0.3.8"
+    "through-gulp": "^0.3.8",
+    "yargs": "^3.30.0"
   }
 }
