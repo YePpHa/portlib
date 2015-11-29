@@ -124,13 +124,16 @@ The generated docs can be found in `./docs` or you can use the pre-generated
 docs at http://yeppha.github.io/docs/portlib/1.0.2/index.html.
 
 ## Todo
- * Compile the library for people not using Google Closure.
- * Implement proper error catching if an error occurs in a function.
- * Make the user pick what Promise library they want to use or if they want
-   to use the native Promise API implemented by the browser. Currently the
-   library uses
-   [goog.Promise](http://google.github.io/closure-library/api/class_goog_Promise.html)
-   for Promises to support older browsers.
+* Compile the library for people not using Google Closure.
+  * Properly define what is exported.
+  * Create an inject method like in
+    [UserProxy](https://github.com/YePpHa/UserProxy) for smaller userscripts.
+* Implement proper error catching if an error occurs in a function.
+* Make the user pick what Promise library they want to use or if they want
+  to use the native Promise API implemented by the browser. Currently the
+  library uses
+  [goog.Promise](http://google.github.io/closure-library/api/class_goog_Promise.html)
+  for Promises to support older browsers.
 
 ## License
 The MIT License (MIT)
