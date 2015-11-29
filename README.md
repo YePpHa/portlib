@@ -39,6 +39,7 @@ The only browser dependency is the support of the
 ## Tested in
 Currently tested in:
  * Chrome v46 (with Tampermonkey and a Chrome extension)
+ * Firefox v39, v41 and v42 (with Greasemonkey)
 
 ### Limitations
 Port Library makes it easy to create a pipeline to the page sandbox. However,
