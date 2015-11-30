@@ -69,7 +69,7 @@ there are some limitations. The limitations are as follows:
 
 ## Port Library module
 To use the Port Library you need to require the `./dist/portlib.js` file in your
-project. See [Library building](#Library building) for more info on how to build
+project. See [Library building](#library-building) for more info on how to build
 the file.
 
 This version of the Port Library uses the namespace `portlib`, where all its API
