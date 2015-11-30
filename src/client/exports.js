@@ -7,10 +7,75 @@ goog.provide("pl.exports");
 
 goog.require("pl.Promise");
 
+goog.require("pl.Port");
+goog.require("pl.Port.EventType");
 goog.require("pl.EventPort");
 goog.require("pl.EventPortSpawner");
 
+goog.require("pl.utils");
+
 goog.require("goog.events.Event");
+
+goog.require("goog.json");
+
+/**
+ * Inject a function into the page.
+ * @param {function(pl.Port, pl.exports)} fn The function to inject.
+ * @param {Object=} opt_methods The methods of the port returned by the function.
+ * @return {pl.Port} The port connecting the injected function.
+ * @suppress {undefinedVars}
+ */
+pl.exports['inject'] = function(fn, opt_methods) {
+  var channel = "portlib-" + pl.utils.generateString(8);
+  var name = "portlib-" + pl.utils.generateString(8);
+
+  var port = new pl.EventPort(channel, opt_methods || {}, name);
+
+  var portlibScript = "function(){" + [
+    /** Define variables */
+    "var fn = " + selfFunction + ";",
+    "var portlibModule = {};",
+
+    /** Populate portlibModule */
+    "(fn)(portlibModule, fn);",
+
+    /** Return the portlib exports. */
+    "return portlibModule['exports'];"
+  ].join("") + "}";
+
+  var callScript = "function(){" + [
+    "var portlib = (" + portlibScript + ")();",
+    "var port = new portlib.EventPort(" + goog.json.serialize(channel) + ", {}, " + goog.json.serialize(name) + ");",
+    "if (port.connect(" + goog.json.serialize(name) + ")) {",
+      "userFn(port, portlib);",
+    "} else {",
+      "throw Error(\"Port couldn't be connected.\");",
+    "}"
+  ].join("") + "}";
+
+  var globalScript = "function(){" + [
+    "var userFn = " + fn + ";",
+    "(" + callScript + ")();"
+  ].join("") + "}";
+
+  var script = document.createElement("script");
+  script.setAttribute("type", "text/javascript");
+  script.textContent = "(" + globalScript + ")();";
+
+  var parent = (document.body || document.head || document.documentElement);
+  port.listenOnce(pl.Port.EventType.CONNECTED, function(){
+    /**
+     * We got a response, let's remove the script from the document to keep the
+     * DOM clean.
+     */
+    parent.removeChild(script);
+  });
+
+  /** Add the script to the DOM to execute the script. */
+  parent.appendChild(script);
+
+  return port;
+};
 
 /** Exports for the Promise object */
 pl.exports['Promise'] = pl.Promise;

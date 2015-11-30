@@ -7,8 +7,9 @@
     root.portlib = factory();
   }
 }(this, function () {
-  var module = {};
-  (function(window){%output%})(module);
+  var portlibModule = {};
+  var fn = function(window, selfFunction){ %output% };
+  (fn)(portlibModule, fn);
 
-  return module['exports'];
+  return portlibModule['exports'];
 }));

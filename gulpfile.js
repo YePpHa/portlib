@@ -92,7 +92,7 @@ gulp.task('chrome-test-manifest', function() {
   var opt = {
     "manifest_version": 2,
     "name": "Port Library Test",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "content_scripts": [
       {
         "matches": ["https://www.youtube.com/*"],
@@ -109,13 +109,13 @@ gulp.task('chrome-test-manifest', function() {
 });
 
 /** Building exports */
-gulp.task('build-export', function(){
+gulp.task('build', function(){
   var argv = require('yargs')
   .boolean('useNativePromise')
   .argv;
 
   return gulp.src(src)
-    .pipe(ClosureCompiler.stream("lib.js", {
+    .pipe(ClosureCompiler.stream("portlib.js", {
       compilationLevel: ClosureCompiler.CompilationLevels.ADVANCED_OPTIMIZATIONS,
       entryPoint: "pl.exports",
       onlyClosureDependencies: true,
@@ -124,9 +124,13 @@ gulp.task('build-export', function(){
       }
     }, closureCompilerPath))
     .pipe(through.map(function(file) {
-      var contents = fs.readFileSync('./src/wrapper.js').toString()
-                    .replace("%output%", file.contents.toString())
-      file.contents = new Buffer(contents);
+
+      var contents = fs.readFileSync('./src/wrapper.js').toString();
+      if (contents.indexOf("%output%") !== -1) {
+        contents = contents.replace("%output%", file.contents.toString());
+        file.contents = new Buffer(contents);
+      }
+
       return file;
     }))
     .pipe(gulp.dest("./dist"));

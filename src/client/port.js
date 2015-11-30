@@ -38,7 +38,10 @@ goog.inherits(pl.Port, goog.events.EventTarget);
  */
 pl.Port.EventType = {
   /** The port has been disconnected. */
-  DISCONNECT: 'disconnect'
+  DISCONNECTED: 'disconnected',
+
+  /** The port has been connected. */
+  CONNECTED: 'connected'
 };
 
 /**
@@ -261,6 +264,8 @@ pl.Port.prototype.handleMessage = function(detail) {
 pl.Port.prototype.handleAcceptConnection = function(detail) {
   if (!this.getReceiverId()) {
     this.setReceiverId(detail['sender']);
+
+    this.dispatchEvent(pl.Port.EventType.CONNECTED);
   }
 };
 
@@ -273,6 +278,8 @@ pl.Port.prototype.handleRequestConnection = function(detail) {
   if (!this.getReceiverId() && detail['data'] === this.getName()) {
     this.setReceiverId(detail['sender']);
     this.postMessage(pl.Port.MethodType.ACCEPT_CONNECTION, null);
+
+    this.dispatchEvent(pl.Port.EventType.CONNECTED);
   }
 };
 
@@ -360,7 +367,7 @@ pl.Port.prototype.handlePromiseReject = function(data) {
  * @private
  */
 pl.Port.prototype.handleDisconnect = function() {
-  this.dispatchEvent(new goog.events.Event(pl.Port.EventType.DISCONNECT));
+  this.dispatchEvent(new goog.events.Event(pl.Port.EventType.DISCONNECTED));
 
   // Dispose of this object.
   this.dispose();
