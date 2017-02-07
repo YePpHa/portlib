@@ -1,4 +1,6 @@
 # Port Library
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/YePpHa/portlib.svg)](https://greenkeeper.io/)
 Port Library is a JavaScript library that can create a synchronous connection
 between two sandboxes as long as the two sandboxes have access to the same event
 pool. The library was created for content scripts (userscripts) needing a direct
